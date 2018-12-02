@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include <vector>
 using namespace std;
 
@@ -28,12 +29,11 @@ void printVector(const vector<int> v){
 
 
 void printTopology(const graph precedence, vector<int> degree_in){
-    vector<int> tasksWithDegreeZero;
+    priority_queue<int, vector<int>, greater<int> > tasksWithDegreeZero;
     int n = degree_in.size();
-//    for(int i = 0; i < n; i++){
-    for(int i = n - 1; i >= 0; i--){
+    for(int i = 0; i < n; i++){
         if (degree_in[i] == 0){
-            tasksWithDegreeZero.push_back(i);
+            tasksWithDegreeZero.push(i);
         }
     }
 
@@ -41,8 +41,8 @@ void printTopology(const graph precedence, vector<int> degree_in){
 
     int currentlyExecutingTask;
     while(tasksWithDegreeZero.size() != 0){
-        currentlyExecutingTask = tasksWithDegreeZero.back();
-        tasksWithDegreeZero.pop_back();
+        currentlyExecutingTask = tasksWithDegreeZero.top(); tasksWithDegreeZero.pop();
+
         printedTasks++;
         cout<<currentlyExecutingTask;
         if(printedTasks < n){
@@ -52,23 +52,12 @@ void printTopology(const graph precedence, vector<int> degree_in){
         degree_in[currentlyExecutingTask] = -1; //so we dont find it again
         vector<int> tasksThatMustBeAfterCurrentlyExecutingTask = precedence[currentlyExecutingTask];
 
-//        for(int i = 0; i < tasksThatMustBeAfterCurrentlyExecutingTask.size(); i++){
-        for(int i = tasksThatMustBeAfterCurrentlyExecutingTask.size() - 1; i >= 0; i--){
+        for(int i = 0; i < tasksThatMustBeAfterCurrentlyExecutingTask.size(); i++){
             int after_task = tasksThatMustBeAfterCurrentlyExecutingTask[i];
             degree_in[after_task]--;
             if (degree_in[after_task] == 0){
                 // add task
-                tasksWithDegreeZero.push_back(after_task);
-                int tmp;
-                for (int j = tasksWithDegreeZero.size() - 1; j > 0; j--){
-                    if(tasksWithDegreeZero[j-1] < tasksWithDegreeZero[j]){
-                        tmp = tasksWithDegreeZero[j-1];
-                        tasksWithDegreeZero[j-1] = tasksWithDegreeZero[j];
-                        tasksWithDegreeZero[j] = tmp;
-                    }else{
-                        break;
-                    }
-                }
+                tasksWithDegreeZero.push(after_task);
             }
         }
 
